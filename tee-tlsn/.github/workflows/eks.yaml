@@ -1,0 +1,11 @@
+name: EKS Nitro Builder
+on:
+  workflow_dispatch:
+
+jobs:
+  Checkout:
+    runs-on: [self-hosted, eks-nitro]
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "🎉 This job uses runner scale set runners!"
+      - run: nitro-cli describe-enclaves

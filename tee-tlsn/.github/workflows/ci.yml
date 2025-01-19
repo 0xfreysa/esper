@@ -1,0 +1,115 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - dev
+    tags:
+      - "[v]?[0-9]+.[0-9]+.[0-9]+*"
+  pull_request:
+    branches:
+      - dev
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+
+jobs:
+  fmt:
+    name: Check formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+        # We use nightly to support `imports_granularity` feature
+      - name: Install nightly rust toolchain with rustfmt
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: nightly
+          components: rustfmt
+
+      - name: Use caching
+        uses: Swatinem/rust-cache@v2.7.3
+
+      - name: Check formatting
+        run: cargo +nightly fmt --check --all
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install stable rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          components: clippy
+
+      - name: Use caching
+        uses: Swatinem/rust-cache@v2.7.3
+
+      - name: Clippy
+        run: cargo clippy --all-features --all-targets -- -D warnings
+
+      - name: Build
+        run: cargo build --all-targets
+
+      - name: Test
+        run: cargo test
+  build-wasm:
+    name: Build and test wasm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install stable rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          toolchain: stable
+
+      - name: Install nightly rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown,x86_64-unknown-linux-gnu
+          toolchain: nightly
+          components: rust-src
+
+      - name: Install chromedriver
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-chromedriver
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Use caching
+        uses: Swatinem/rust-cache@v2.7.3
+
+      - name: Run tests
+        run: |
+          cd crates/wasm-test-runner
+          RUST_LOG=debug ./run.sh
+  tests-integration:
+    name: Run tests release build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install stable rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Use caching
+        uses: Swatinem/rust-cache@v2.7.3
+
+      - name: Add custom DNS entry to /etc/hosts for notary TLS test
+        run: echo "127.0.0.1 tlsnotaryserver.io" | sudo tee -a /etc/hosts
+
+      - name: Run integration tests
+        run: cargo test --profile tests-integration --workspace --exclude tlsn-tls-client --exclude tlsn-tls-core -- --include-ignored

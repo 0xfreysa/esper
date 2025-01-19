@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "Esper by Freysa",
+  "description": "Contribute verifiable information to AI agents.",
+  "options_page": "options.html",
+  "background": {
+    "service_worker": "background.bundle.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon-34.png"
+  },
+  "icons": {
+    "128": "icon-128.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*", "<all_urls>"],
+      "js": ["contentScript.bundle.js"],
+      "css": ["content.styles.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*", "content.styles.css", "icon-128.png", "icon-34.png", "content.bundle.js"],
+      "matches": ["http://*/*", "https://*/*", "<all_urls>"]
+      
+    }
+  ],
+  "host_permissions": ["<all_urls>"],
+  "permissions": [
+    "offscreen",
+    "storage",
+    "webRequest",
+    "activeTab"
+  ]
+}

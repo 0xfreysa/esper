@@ -1,0 +1,15 @@
+{
+  "name": "tlsn-wasm",
+  "type": "module",
+  "version": "0.1.0-alpha.6",
+  "files": [
+    "tlsn_wasm_bg.wasm",
+    "tlsn_wasm.js",
+    "tlsn_wasm.d.ts"
+  ],
+  "main": "tlsn_wasm.js",
+  "types": "tlsn_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

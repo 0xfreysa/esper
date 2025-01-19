@@ -1,0 +1,78 @@
+name: test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  LOCAL-NOTARY: true
+  LOCAL-WS: false
+  HEADLESS: true
+  PUPPETEER_SKIP_DOWNLOAD: true
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install stable rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          toolchain: nightly
+
+      - name: Use caching
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: wasm/prover
+
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+        id: setup-chrome
+        with:
+          chrome-version: 121.0.6167.85
+
+      - name: Set CHROME_PATH environment variable
+        run: echo "CHROME_PATH=${{ steps.setup-chrome.outputs['chrome-path'] }}" >> $GITHUB_ENV
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - uses: pnpm/action-setup@v3
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - uses: actions/cache@v4
+        name: Setup pnpm cache
+        with:
+          path: ${STORE_PATH}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install nightly tool-chain
+        run: rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Test dependencies
+        run: npm run build:tlsn-binaries
+
+      - name: Test
+        run: npm run test

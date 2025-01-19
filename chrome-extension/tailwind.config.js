@@ -1,0 +1,35 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        primary: '#243f5f',
+        mainDark: '#171716',
+        secDark: '#2E2E2B',
+        mainLight: '#242424',
+        brand: '#33DE89',
+        brandHover: '#3df096',
+        text: '#FFFFFF',
+        textLight: '#F2F2F2',
+        textGray: '#6C6C66',
+        textDim: '#9BA2AE',
+        providerTile: '#2E2E2B',
+        providerTileHover: '#252523',
+        stroke: '#FFFFFF',
+        textVerified: '#33DE89',
+        button: '#2E2E2B',
+        buttonHover: '#252523',
+        buttonText: '#F2F2F2',
+        buttonLight: '#42423F',
+        buttonLightHover: '#4d4d4a',
+        buttonLightText: '#F2F2F2',
+        error: '#F78484',
+        grayOutline: '#777877',
+        darkGrayOutline: '#515152',
+        inputBackground: '#2E2E2B',
+      },
+    },
+  },
+  plugins: [],
+};

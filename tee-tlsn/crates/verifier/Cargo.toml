@@ -1,0 +1,45 @@
+[package]
+name = "tlsn-verifier"
+authors = ["TLSNotary Team"]
+description = "A library for the TLSNotary verifier"
+keywords = ["tls", "mpc", "2pc"]
+categories = ["cryptography"]
+license = "MIT OR Apache-2.0"
+version = "0.1.0-alpha.6"
+edition = "2021"
+
+[dependencies]
+tlsn-common = { workspace = true, features = ["tee"] }
+tlsn-core = { workspace = true, features = ["tee"] }
+tlsn-tls-core = { workspace = true }
+tlsn-tls-tee = { workspace = true }
+
+serio = { workspace = true, features = ["compat"] }
+uid-mux = { workspace = true, features = ["serio"] }
+
+derive_builder = { workspace = true }
+futures = { workspace = true }
+opaque-debug = { workspace = true }
+rand = { workspace = true }
+signature = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+web-time = { workspace = true }
+
+httparse = { workspace = true }
+sha2 = { workspace = true }
+hex = { workspace = true }
+zeroize = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+lazy_static = { workspace = true}
+prometheus = { workspace = true }
+reqwest = { version = "0.12", features = ["json"] }
+jsonschema = { version = "0.23.0", default-features = false }
+regex = { version = "1.11.0" }
+boa_engine = { version = "0.19.0" }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+jmespath = { version = "0.3.0"}
+tokio = { workspace = true, features = ["macros", "full"] }
+posthog-rs = "0.2.0"

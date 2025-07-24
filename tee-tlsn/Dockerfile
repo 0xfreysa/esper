@@ -1,5 +1,5 @@
 
-FROM golang:1.22 AS builder_nitriding
+FROM golang:1.23 AS builder_nitriding
 
 WORKDIR /
 
@@ -14,7 +14,7 @@ RUN ARCH=${TARGETARCH} make -C nitriding-daemon/ nitriding
 
 
 FROM rust:bookworm AS builder_notary
-RUN rustup default 1.79.0
+RUN rustup default 1.85.0
 
 WORKDIR /usr/src/tlsn
 COPY . .

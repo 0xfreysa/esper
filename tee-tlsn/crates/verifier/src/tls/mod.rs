@@ -171,7 +171,8 @@ impl Verifier<state::Setup> {
         timer.stop_and_record();
         info!(
             "Finished TLS session\r\nrequest:\r\n{}\r\nresponse:\r\n{}",
-            request_data, response_data
+            &request_data.chars().take(10).collect::<String>(),
+            &response_data.chars().take(10).collect::<String>()
         );
 
         Ok(Verifier {

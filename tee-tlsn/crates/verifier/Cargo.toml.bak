@@ -37,8 +37,9 @@ prometheus = { workspace = true }
 reqwest = { version = "0.12", features = ["json"] }
 jsonschema = { version = "0.23.0", default-features = false }
 regex = { version = "1.11.0" }
-boa_engine = { version = "0.20.0" }
+boa_engine = { version = "0.19.0" }
 p256 = { workspace = true }
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+jmespath = { version = "0.3.0"}
 tokio = { workspace = true, features = ["macros", "full"] }
 posthog-rs = "0.2.0"

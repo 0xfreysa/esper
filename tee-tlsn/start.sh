@@ -5,5 +5,9 @@ echo "[sh] Started nitriding."
 
 sleep 1
 
-/app/notary-server --config-file /app/config/config.yaml
-echo "[sh] Started notary server."
+echo "Starting notary server."
+
+/app/notary-server --config-file /app/config/config.yaml || true
+ 
+
+sleep 1000000

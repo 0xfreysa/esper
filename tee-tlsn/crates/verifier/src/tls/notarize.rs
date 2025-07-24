@@ -2,8 +2,10 @@
 //!
 //! The TLS verifier is only a notary.
 
-use crate::provider::Processor;
-use crate::util::{log_event, LogEvent};
+use crate::{
+    provider::Processor,
+    util::{log_event, LogEvent},
+};
 use std::collections::HashMap;
 
 use super::{state::Notarize, Verifier, VerifierError};
@@ -144,7 +146,6 @@ impl Verifier<Notarize> {
                     "sent signed session {:?}",
                     signed_session.attestations.keys()
                 );
-                info!("signed session hash: {:?}", signed_session.application_data);
 
                 // Finalize all TEE before signing the session header.
                 Ok::<_, VerifierError>(signed_session)

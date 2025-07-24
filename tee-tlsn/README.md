@@ -21,6 +21,8 @@ cd crates/notary/server
 cargo run
 ```
 
+To test the local notary, in extension go to settings to change the notary url to `http://localhost:7047`
+
 ### Run with docker
 
 The dockerfile expect a 'tls' folder with TLS certificates at the root of the repository.
@@ -32,12 +34,15 @@ docker build --build-arg CONFIG_FILE=config_production.yaml -t notary-test .
 docker run -p 7047:7047  notary-test
 ```
 
-## Notary config file 
+## Notary config file and providers
 
 The notary config file allows you to set the list of providers (websites), notary signing key, TLS certificates path, and also the port of the notary server.
 
-See [config.yaml](./crates/notary/server/config/config.yaml) file.
+The providers are defined in the [providers.json](./crates/notary/server/providers.json) file. They defined how to extract and process data from TLS responses to produce attested atributes.
+
+The [config.yaml](./crates/notary/server/config/config.yaml) file points to the providers path.
  
+You can test the providers parsing function in the unit tests in [provider.rs](./crates/verifier/src/provider.rs) module.
 
 ## Deploy notary server on TEE
 

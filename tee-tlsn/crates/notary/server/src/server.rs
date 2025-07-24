@@ -1,5 +1,5 @@
 use axum::{
-    extract::Request,
+    extract::{Query, Request},
     http::StatusCode,
     middleware::from_extractor_with_state,
     response::{Html, IntoResponse},
@@ -50,8 +50,10 @@ use crate::{
 use metrics_exporter_prometheus::PrometheusBuilder;
 use metrics_process::Collector;
 use prometheus::{register_counter, register_gauge, Counter, Encoder, Gauge, TextEncoder};
+use serde::Deserialize;
 use structopt::lazy_static::lazy_static;
-use tlsn_verifier::util::get_code_attestation;
+use tlsn_verifier::util::{get_code_attestation, verify_signature};
+
 lazy_static! {
     static ref TOTAL_CONNECTION_COUNTER: Counter =
         register_counter!("total_connection_counter", "Total connections recorded").unwrap();
@@ -74,6 +76,24 @@ impl Drop for TaskGuard {
         info!("dropped prover's TCP connection",);
         self.gauge.dec();
     }
+}
+
+// Define a struct to represent the expected query parameters
+#[derive(Debug, Deserialize)]
+struct VerifySignatureParams {
+    signature: String,
+    message: String,
+    public_key: String,
+}
+
+/// Handler for the `/verify_signature` endpoint
+async fn verify_signature_handler(
+    Query(params): Query<VerifySignatureParams>,
+) -> impl IntoResponse {
+    use tracing::info;
+    info!("Received signature verification request: {:?}", params);
+    let result = verify_signature(params.signature, params.public_key, params.message).await;
+    (StatusCode::OK, format!("{result}")).into_response()
 }
 
 /// Start a TCP server (with or without TLS) to accept notarization request for both TCP and WebSocket clients
@@ -182,11 +202,15 @@ pub async fn run_server(config: &NotaryServerProperties) -> Result<(), NotarySer
         )
         .route(
             "/code_attestation",
-            get(|| async move {
-                let code_attestation = get_code_attestation().await;
-                (StatusCode::OK, code_attestation).into_response()
+            get(|req: Request| async move {
+                use tracing::info;
+                let params = req.uri().query().unwrap_or("");
+                let nonce = params.split("=").nth(1).unwrap_or("");
+                let code_attestation = get_code_attestation(nonce.to_string()).await;
+                (StatusCode::OK, format!("{code_attestation}")).into_response()
             }),
         )
+        .route("/verify_signature", get(verify_signature_handler))
         .route(
             "/info",
             get(|| async move {
